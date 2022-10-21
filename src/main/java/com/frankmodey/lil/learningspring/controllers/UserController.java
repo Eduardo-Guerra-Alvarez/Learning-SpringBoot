@@ -2,11 +2,10 @@ package com.frankmodey.lil.learningspring.controllers;
 
 import com.frankmodey.lil.learningspring.dao.UserDao;
 import com.frankmodey.lil.learningspring.models.User;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,14 +47,13 @@ public class UserController {
         userDao.eliminar(id);
     }
 
-    @RequestMapping(value="api/buscar")
-    public User searchUser() {
-        User usuario = new User();
-        usuario.setNombre("Lucas");
-        usuario.setApellido("Moy");
-        usuario.setEmail("Moy@gmail.com");
-        usuario.setTelefono("3323232323");
-        return usuario;
+    @RequestMapping(value="api/usuarios", method = RequestMethod.POST)
+    public void registrarUser(@RequestBody User user) {
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        String hash = argon2.hash(1, 1024, 1, user.getPassword());
+        user.setPassword(hash);
+        System.out.println(user);
+        userDao.registrar(user);
     }
 
 }
